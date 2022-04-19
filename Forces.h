@@ -131,7 +131,10 @@ VEC_3X1 LeftRotorForce(double t, VEC_12X1 State, VehicleParamStruct VehicleParam
 	RotorForce(0,0) = 0;
 	RotorForce(1,0) = 0;
 	RotorForce(2,0) = -LeftRotorThrustCoefficient::C_t*dynamicPressure*(PI*pow(LeftRotorThrustCoefficient::BladeLen,2));
-	return RotorForce;
+	float LeftRotorPitch = controls.LeftRotorPitch; //Sense of rotation is along + body y-axis
+	MAT_3X3 RotMat;
+	RotMat << std::cos(LeftRotorPitch), 0, -std::sin(LeftRotorPitch),0,1,0,std::sin(LeftRotorPitch),0,std::cos(LeftRotorPitch);
+	return RotMat*RotorForce;
 
 };
 VEC_3X1	RightRotorForce(double t, VEC_12X1 State, VehicleParamStruct VehicleParam, ControlStruct controls) {
@@ -156,6 +159,10 @@ VEC_3X1	RightRotorForce(double t, VEC_12X1 State, VehicleParamStruct VehiclePara
 	RotorForce(0,0) = 0;
 	RotorForce(1,0) = 0;
 	RotorForce(2,0) = -RightRotorThrustCoefficient::C_t*dynamicPressure*(PI*pow(RightRotorThrustCoefficient::BladeLen,2));
+	float RightRotorPitch = controls.RightRotorPitch; //Sense of rotation is along + body y-axis
+	MAT_3X3 RotMat;
+	RotMat << std::cos(RightRotorPitch), 0, -std::sin(RightRotorPitch),0,1,0,std::sin(RightRotorPitch),0,std::cos(RightRotorPitch);
+	return RotMat*RotorForce;
 	return RotorForce;
 };
 }
