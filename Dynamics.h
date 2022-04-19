@@ -141,5 +141,21 @@ namespace Dynamics {
     
     };
 
+    VEC_12X1 Initialize() {
+    float p_N = 0;  //North-ward position of the craft
+	float p_E = 0;  //East-ward position of the craft
+	float p_B = 0;  //Vertical position of the craft, measured positive in a downwards direction
+	float pitch = 0; //Pitch of the craft
+	float roll = 0; //Roll of the craft
+	float yaw = 0;  //Yaw of the craft
+	float U = 0; //X velocity of the craft in the body frame
+	float V = 0; //Y velocity of the craft in the body frame
+	float W = 0; //Z velocity of the craft in the body frame
+	float P = 0 //Body rotation rate along body X axis
+	float Q = 0; //Body rotation rate along body Y axis
+	float R = 0; //Body rotation rate along body Z axis
 
+    VEC_12X1 InitialState;
+    InitialState << p_N, p_E,p_B,pitch,roll,yaw,U,V,W,P,Q,R;
+    }
 }
