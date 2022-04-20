@@ -11,7 +11,7 @@ namespace Flaps {
     	};
 
     float DragValue(float FlapDeflection) {
-        FlapDeflection = FlapDeflection*(180.0/PI);
+        float FlapDeflection = FlapDeflection*(180.0/PI);
         return (FlapDragSensitivity*FlapDeflection);
     };
 

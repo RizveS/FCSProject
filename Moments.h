@@ -84,7 +84,7 @@ namespace Moments {
     VEC_3X1 RudderMoment = VehicleParam.RudderPos.cross(RudderForce);
 
 	float aileronRollMoment = Ailerons::Value(AileronDeflection)*dynamicPressure*((std::pow(WingProps::WingSpan,2)/WingProps::AR))*WingProps::MAC;
-	float flapPitchMoment = Flaps::PitchMomentValue(FlapDeflection)*dynamicPressure*((std::pow(WingProps::WingSpan,2)/WingProps::AR))*WingProps::MAC;
+	float flapPitchMoment = Flaps::PitchMomentValue(FlapDeflection)**dynamicPressure*((std::pow(WingProps::WingSpan,2)/WingProps::AR))*WingProps::MAC;
 
     VEC_3X1 TotalMoment;
     TotalMoment << rollMoment + aileronRollMoment,pitchMoment+flapPitchMoment,yawMoment;
