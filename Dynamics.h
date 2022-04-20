@@ -15,17 +15,22 @@ namespace Dynamics {
         VEC_3X1 RudderPos;
         VEC_3X1 ElevatorPos;
 
-        RightRotorPos << 0,0,0;
-        LeftRotorPos << 0,0,0;
-        RearRotorPos << 0,0,0;
-        RudderPos << 0,0,0;
-        ElevatorPos << 0,0,0;
+        RightRotorPos << 0.001*371.5212,0.001*2283.31,0.001*-1156.92496;
+        LeftRotorPos << 0.001*371.5212,0.001*-2283.31,0.001*-1156.92496;
+        RearRotorPos << 0.001*-1055.1488,0,0.001*-100;
+        RudderPos << 0.001*-1200.1488,0,0.001*-100;
+        ElevatorPos << 0.001*-1200.1488,0,0.001*-100;
 
         VehicleParam.RightRotorPos = RightRotorPos;
         VehicleParam.LeftRotorPos = LeftRotorPos;
         VehicleParam.RearRotorPos = RearRotorPos;
         VehicleParam.RudderPos = RudderPos;
         VehicleParam.ElevatorPos = ElevatorPos;
+
+        VehicleParam.m = 700;
+        VehicleParam.I << 100*11.13926,0,100*5,0,100*7.3528,0,100*5,0,100*11.94175;
+
+        return VehicleParam;
     };
 
     VEC_12X1 MarchForward(float t, float deltaT, VEC_12X1 prevState, float ThrottlePosition, float YokeTwist, float YokeDepression, 
@@ -37,8 +42,8 @@ namespace Dynamics {
     ControlStruct controls;
     //Process ThrottlePosition input
     //Assume throttle is used to control rear rotor speed
-    float MAX_RPM = 3000;
-    controls.RearRotorSpeed = MAX_RPM*(ThrottlePosition/100);
+    float REAR_ROTOR_MAX_RPM = 3000;
+    controls.RearRotorSpeed = REAR_ROTOR_MAX_RPM*(ThrottlePosition/100);
 
     //Process YokeTwist input
     //Assumes yoke twist directly commands deflection of ailerons
@@ -65,9 +70,9 @@ namespace Dynamics {
     //Process WingRotorControl
     /*IN PROGRESS -> What kind of physical controls would this use?
      Assume WingRotorControl is set and varies within [0,100]*/
-    float MAX_RPM = 3000;
-    controls.LeftRotorSpeed = MAX_RPM*(WingRotorControl/100);
-    controls.RightRotorSpeed = MAX_RPM*(WingRotorControl/100);
+    float WING_ROTOR_MAX_RPM = 3000;
+    controls.LeftRotorSpeed = WING_ROTOR_MAX_RPM*(WingRotorControl/100);
+    controls.RightRotorSpeed = WING_ROTOR_MAX_RPM*(WingRotorControl/100);
 
     //Process WingRotor Pitch
     controls.LeftRotorPitch = LeftRotorPitch;
@@ -151,7 +156,7 @@ namespace Dynamics {
 	float U = 0; //X velocity of the craft in the body frame
 	float V = 0; //Y velocity of the craft in the body frame
 	float W = 0; //Z velocity of the craft in the body frame
-	float P = 0 //Body rotation rate along body X axis
+	float P = 0; //Body rotation rate along body X axis
 	float Q = 0; //Body rotation rate along body Y axis
 	float R = 0; //Body rotation rate along body Z axis
 
