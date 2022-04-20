@@ -40,8 +40,16 @@ VEC_3X1 AerodynamicForce(double t,VEC_12X1 State, VehicleParamStruct VehiclePara
 
 
 	float V_T = std::sqrt(std::pow(U,2) + std::pow(V,2)+ std::pow(W,2));
-	float AoA = std::atan2(U,W);
-	float SideSlip = std::asin(V/V_T);
+	float AoA;
+	float SideSlip;
+	if ((V_T > 1E-3) & (std::abs(U) > 1E-3)) {
+		AoA = std::atan2(W,U);
+		SideSlip = std::asin(V/V_T);
+	}
+	else {
+		AoA = 0;
+		SideSlip = 0;
+	}
 	float MachNumber = 0; //Would have to have temperature as part of the state equations. Did not adjust for additional complexity of doing this
 
 
@@ -163,6 +171,5 @@ VEC_3X1	RightRotorForce(double t, VEC_12X1 State, VehicleParamStruct VehiclePara
 	MAT_3X3 RotMat;
 	RotMat << std::cos(RightRotorPitch), 0, -std::sin(RightRotorPitch),0,1,0,std::sin(RightRotorPitch),0,std::cos(RightRotorPitch);
 	return RotMat*RotorForce;
-	return RotorForce;
 };
 }

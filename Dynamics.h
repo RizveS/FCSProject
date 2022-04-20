@@ -1,5 +1,6 @@
 #include "./Forces.h"
 #include "./Moments.h"
+#include<iostream>
 #define RPM_TO_RADPERSEC PI/30
 
 
@@ -29,7 +30,6 @@ namespace Dynamics {
 
         VehicleParam.m = 700;
         VehicleParam.I << 100*11.13926,0,100*5,0,100*7.3528,0,100*5,0,100*11.94175;
-
         return VehicleParam;
     };
 
@@ -39,6 +39,7 @@ namespace Dynamics {
     float T = t+deltaT;
     float gD = 9.81;
 
+    bool debug = true;
     ControlStruct controls;
     //Process ThrottlePosition input
     //Assume throttle is used to control rear rotor speed
@@ -84,6 +85,7 @@ namespace Dynamics {
     float Jz = VehicleParam.I(2,2);
     float Jxz = VehicleParam.I(0,2);
 
+
     ////Decompose state in respective variables
 	float p_N = prevState(0,0);  //North-ward position of the craft
 	float p_E = prevState(1,0);  //East-ward position of the craft
@@ -123,6 +125,13 @@ namespace Dynamics {
     VEC_3X1 LeftRotorMoment = Moments::LeftRotorMoment(T,prevState,VehicleParam,controls);
     VEC_3X1 RightRotorMoment = Moments::RightRotorMoment(T,prevState,VehicleParam,controls);
 
+    if (debug == true) {
+    std::cout << "-----------------------------------------------------" << std::endl;
+    std::cout << "Aerodynamic Moment" << "[" << AeroMoment[0] << " ," << AeroMoment[1] << " ," << AeroMoment[2] << " ]" << std::endl;
+    std::cout << "Rear Rotor Moment" << "[" << RearRotorMoment[0] << " ," << RearRotorMoment[1] << " ," << RearRotorMoment[2] << " ]" << std::endl;
+    std::cout << "Left Rotor Moment" << "[" << LeftRotorMoment[0] << " ," << LeftRotorMoment[1] << " ," << LeftRotorMoment[2] << " ]" << std::endl;
+    std::cout << "Right Rotor Moment" <<  "[" << RightRotorMoment[0] << " ," << RightRotorMoment[1] << " ," << RightRotorMoment[2] << " ]" << std::endl;
+    }
 
     StateDer(6,0) = lambda*(Jxz*(Jx-Jy+Jz)*P*Q-(Jz*(Jz-Jy)+std::pow(Jxz,2))*Q*R + 
     AeroMoment(0,0) + RearRotorMoment(0,0) + LeftRotorMoment(0,0) + RightRotorMoment(0,0));
@@ -133,10 +142,20 @@ namespace Dynamics {
     StateDer(8,0) = lambda*( ((Jx-Jy)*Jx + std::pow(Jxz,2))*P*Q - Jxz*(Jx-Jy+Jz)*Q*R +
     AeroMoment(2,0) + RearRotorMoment(2,0) + LeftRotorMoment(2,0) + RightRotorMoment(2,0)); 
 
+
     VEC_3X1 AeroForce = Forces::AerodynamicForce(T,prevState,VehicleParam,controls);
     VEC_3X1 RearRotorForce = Forces::RearRotorForce(T,prevState,VehicleParam,controls);
     VEC_3X1 LeftRotorForce = Forces::LeftRotorForce(T,prevState,VehicleParam,controls);
     VEC_3X1 RightRotorForce = Forces::RightRotorForce(T,prevState,VehicleParam,controls);
+
+    if (debug == false) {
+         std::cout << "-----------------------------------------------------" << std::endl;
+         std::cout << "Aerodynamic Force" << "[" << AeroForce[0] << " ," << AeroForce[1] << " ," << AeroForce[2] << "]" << std::endl;
+         std::cout << "Rear Rotor Force" << "[" << RearRotorForce[0] << " ," << RearRotorForce[1] << " ," << RearRotorForce[2] << "]" << std::endl;
+         std::cout << "Left Rotor Force" << "[" << LeftRotorForce[0] << " ," << LeftRotorForce[1] << " ," << LeftRotorForce[2] << "]" << std::endl;
+         std::cout << "Right Rotor Force" << "[" << RightRotorForce[0] << " ," << RightRotorForce[1] << " ," << RightRotorForce[2] << "]" << std::endl;
+    }
+
 
     StateDer(9,0) = R*V-Q*W-gD*std::sin(pitch) + (AeroForce(0,0)+RearRotorForce(0,0)+LeftRotorForce(0,0) + RightRotorForce(0,0))/VehicleParam.m;
     StateDer(10,0) = -R*U + P*W + gD*std::sin(roll)*std::cos(pitch) + (AeroForce(1,0)+RearRotorForce(1,0)+LeftRotorForce(1,0) + RightRotorForce(1,0))/VehicleParam.m;
@@ -162,5 +181,6 @@ namespace Dynamics {
 
     VEC_12X1 InitialState;
     InitialState << p_N, p_E,p_B,pitch,roll,yaw,U,V,W,P,Q,R;
+    return InitialState;
     }
 }

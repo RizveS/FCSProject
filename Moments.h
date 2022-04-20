@@ -41,8 +41,16 @@ namespace Moments {
 	float R = State(11,0); //Body rotation rate along body Z axis
 
     float V_T = std::sqrt(std::pow(U,2)+std::pow(V,2)+std::pow(W,2));
-    float AoA = std::atan2(U,W);
-	float SideSlip = std::asin(V/V_T);
+	float AoA;
+	float SideSlip;
+    if ((V_T > 1E-3) & (std::abs(U) > 1E-3)) {
+		AoA = std::atan2(W,U);
+		SideSlip = std::asin(V/V_T);
+	}
+	else {
+		AoA = 0;
+		SideSlip = 0;
+	}
 	float MachNumber = 0; //Would have to have temperature as part of the state equations. Did not adjust for additional complexity of doing this
     
     MAT_3X3 ROT_MAT_WINDFRAME_TO_BODY;

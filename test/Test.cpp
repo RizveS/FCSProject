@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
         //State Vector Initialization
         VEC_12X1 InitialState = Dynamics::Initialize();
         std::vector<VEC_12X1> StateVector; //Stores the state vector for each time step
-        StateVector[0] = InitialState;
+        StateVector.push_back(InitialState);
         VEC_12X1 NextState;
 
 
         //Main loop for looping through dynamics
-        for (int iteration = 1; iteration < NumTimeSteps; iteration++) {
+        for (int iteration = 1; iteration < NumTimeSteps +1; iteration++) {
             t = t + deltaT;
             NextState = Dynamics::MarchForward(t,deltaT,StateVector[iteration],ThrottlePosition,YokeTwist,YokeDepression,PedalDepression,WingRotorControl,LeftRotorPitch,RightRotorPitch);
             std::cout << "-----------------------------------------------------" << std::endl;
