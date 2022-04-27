@@ -117,6 +117,25 @@ namespace Dynamics {
     StateDer(4,0) = Q*std::cos(roll) - R*std::sin(roll);
 
     StateDer(5,0) = (Q*std::sin(roll)+R*std::cos(roll))/std::cos(pitch);
+    
+    VEC_3X1 AeroForce = Forces::AerodynamicForce(T,prevState,VehicleParam,controls);
+    VEC_3X1 RearRotorForce = Forces::RearRotorForce(T,prevState,VehicleParam,controls);
+    VEC_3X1 LeftRotorForce = Forces::LeftRotorForce(T,prevState,VehicleParam,controls);
+    VEC_3X1 RightRotorForce = Forces::RightRotorForce(T,prevState,VehicleParam,controls);
+
+    if (debug == true) {
+         std::cout << "-------------Forces--------------------------" << std::endl;
+         std::cout << "Aerodynamic Force" << "[" << AeroForce[0] << " ," << AeroForce[1] << " ," << AeroForce[2] << "]" << std::endl;
+         std::cout << "Rear Rotor Force" << "[" << RearRotorForce[0] << " ," << RearRotorForce[1] << " ," << RearRotorForce[2] << "]" << std::endl;
+         std::cout << "Left Rotor Force" << "[" << LeftRotorForce[0] << " ," << LeftRotorForce[1] << " ," << LeftRotorForce[2] << "]" << std::endl;
+         std::cout << "Right Rotor Force" << "[" << RightRotorForce[0] << " ," << RightRotorForce[1] << " ," << RightRotorForce[2] << "]" << std::endl;
+         std::cout << "---------------------------------------------" << std::endl;
+    }
+
+
+    StateDer(6,0) = R*V-Q*W-gD*std::sin(pitch) + (AeroForce(0,0)+RearRotorForce(0,0)+LeftRotorForce(0,0) + RightRotorForce(0,0))/VehicleParam.m;
+    StateDer(7,0) = -R*U + P*W + gD*std::sin(roll)*std::cos(pitch) + (AeroForce(1,0)+RearRotorForce(1,0)+LeftRotorForce(1,0) + RightRotorForce(1,0))/VehicleParam.m;
+    StateDer(8,0) = Q*U - P*V + gD*std::cos(roll)*std::cos(pitch) + (AeroForce(2,0)+RearRotorForce(2,0)+LeftRotorForce(2,0) + RightRotorForce(2,0))/VehicleParam.m;
 
 
     float lambda = (1.0/(Jx*Jz-std::pow(Jxz,2)));
@@ -126,42 +145,44 @@ namespace Dynamics {
     VEC_3X1 RightRotorMoment = Moments::RightRotorMoment(T,prevState,VehicleParam,controls);
 
     if (debug == true) {
-    std::cout << "-----------------------------------------------------" << std::endl;
+    std::cout << "-----------------Moments-------------------------" << std::endl;
     std::cout << "Aerodynamic Moment" << "[" << AeroMoment[0] << " ," << AeroMoment[1] << " ," << AeroMoment[2] << " ]" << std::endl;
     std::cout << "Rear Rotor Moment" << "[" << RearRotorMoment[0] << " ," << RearRotorMoment[1] << " ," << RearRotorMoment[2] << " ]" << std::endl;
     std::cout << "Left Rotor Moment" << "[" << LeftRotorMoment[0] << " ," << LeftRotorMoment[1] << " ," << LeftRotorMoment[2] << " ]" << std::endl;
     std::cout << "Right Rotor Moment" <<  "[" << RightRotorMoment[0] << " ," << RightRotorMoment[1] << " ," << RightRotorMoment[2] << " ]" << std::endl;
+    std::cout << "---------------------------------------------" << std::endl;
     }
 
-    StateDer(6,0) = lambda*(Jxz*(Jx-Jy+Jz)*P*Q-(Jz*(Jz-Jy)+std::pow(Jxz,2))*Q*R + 
+    StateDer(9,0) = lambda*(Jxz*(Jx-Jy+Jz)*P*Q-(Jz*(Jz-Jy)+std::pow(Jxz,2))*Q*R + 
     AeroMoment(0,0) + RearRotorMoment(0,0) + LeftRotorMoment(0,0) + RightRotorMoment(0,0));
 
-    StateDer(7,0) = (1.0/Jy)*((Jz-Jx)*P*R - Jxz*(std::pow(P,2)-std::pow(R,2)) +
+    StateDer(10,0) = (1.0/Jy)*((Jz-Jx)*P*R - Jxz*(std::pow(P,2)-std::pow(R,2)) +
     AeroMoment(1,0) + RearRotorMoment(1,0) + LeftRotorMoment(1,0) + RightRotorMoment(1,0));
 
-    StateDer(8,0) = lambda*( ((Jx-Jy)*Jx + std::pow(Jxz,2))*P*Q - Jxz*(Jx-Jy+Jz)*Q*R +
+    StateDer(11,0) = lambda*( ((Jx-Jy)*Jx + std::pow(Jxz,2))*P*Q - Jxz*(Jx-Jy+Jz)*Q*R +
     AeroMoment(2,0) + RearRotorMoment(2,0) + LeftRotorMoment(2,0) + RightRotorMoment(2,0)); 
 
 
-    VEC_3X1 AeroForce = Forces::AerodynamicForce(T,prevState,VehicleParam,controls);
-    VEC_3X1 RearRotorForce = Forces::RearRotorForce(T,prevState,VehicleParam,controls);
-    VEC_3X1 LeftRotorForce = Forces::LeftRotorForce(T,prevState,VehicleParam,controls);
-    VEC_3X1 RightRotorForce = Forces::RightRotorForce(T,prevState,VehicleParam,controls);
+    
 
-    if (debug == false) {
-         std::cout << "-----------------------------------------------------" << std::endl;
-         std::cout << "Aerodynamic Force" << "[" << AeroForce[0] << " ," << AeroForce[1] << " ," << AeroForce[2] << "]" << std::endl;
-         std::cout << "Rear Rotor Force" << "[" << RearRotorForce[0] << " ," << RearRotorForce[1] << " ," << RearRotorForce[2] << "]" << std::endl;
-         std::cout << "Left Rotor Force" << "[" << LeftRotorForce[0] << " ," << LeftRotorForce[1] << " ," << LeftRotorForce[2] << "]" << std::endl;
-         std::cout << "Right Rotor Force" << "[" << RightRotorForce[0] << " ," << RightRotorForce[1] << " ," << RightRotorForce[2] << "]" << std::endl;
+    if (debug == true) {
+        std::cout << "-------------------StateDer---------------------" << std::endl;
+        std::cout << "Element 1: " << StateDer(0,0) << std::endl;
+        std::cout << "Element 2: " << StateDer(1,0) << std::endl;
+        std::cout << "Element 3: " << StateDer(2,0) << std::endl;
+        std::cout << "Element 4: " << StateDer(3,0) << std::endl;
+        std::cout << "Element 5: " << StateDer(4,0) << std::endl;
+        std::cout << "Element 6: " << StateDer(5,0) << std::endl;
+        std::cout << "Element 7: " << StateDer(6,0) << std::endl;
+        std::cout << "Element 8: " << StateDer(7,0) << std::endl;
+        std::cout << "Element 9: " << StateDer(8,0) << std::endl;
+        std::cout << "Element 10: " << StateDer(9,0) << std::endl;
+        std::cout << "Element 11: " << StateDer(10,0) << std::endl;
+        std::cout << "Element 12: " << StateDer(11,0) << std::endl;
+
     }
 
-
-    StateDer(9,0) = R*V-Q*W-gD*std::sin(pitch) + (AeroForce(0,0)+RearRotorForce(0,0)+LeftRotorForce(0,0) + RightRotorForce(0,0))/VehicleParam.m;
-    StateDer(10,0) = -R*U + P*W + gD*std::sin(roll)*std::cos(pitch) + (AeroForce(1,0)+RearRotorForce(1,0)+LeftRotorForce(1,0) + RightRotorForce(1,0))/VehicleParam.m;
-    StateDer(11,0) = Q*U - P*V + gD*std::cos(roll)*std::cos(pitch) + (AeroForce(2,0)+RearRotorForce(2,0)+LeftRotorForce(2,0) + RightRotorForce(2,0))/VehicleParam.m;
-
-    return prevState + StateDer*deltaT;
+    return (prevState + StateDer*deltaT);
     
     };
 

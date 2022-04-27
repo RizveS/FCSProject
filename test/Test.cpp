@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         int NumTimeSteps;
         float deltaT;
         float t = 0;
-
+        std::cout << "----------------Controls Input--------------------" << std::endl;
         std::cout << "Enter desired throttle position (Range: [0,100]): ";
         std::cin >> ThrottlePosition;
         std::cout << "Desired Throttle Position: " << ThrottlePosition;
@@ -64,10 +64,10 @@ int main(int argc, char* argv[]) {
 
 
         //Main loop for looping through dynamics
-        for (int iteration = 1; iteration < NumTimeSteps +1; iteration++) {
+        for (int iteration = 0; iteration < NumTimeSteps; iteration++) {
             t = t + deltaT;
+            std::cout << "*********************Current Time: " << t << " ************************" << std::endl;
             NextState = Dynamics::MarchForward(t,deltaT,StateVector[iteration],ThrottlePosition,YokeTwist,YokeDepression,PedalDepression,WingRotorControl,LeftRotorPitch,RightRotorPitch);
-            std::cout << "-----------------------------------------------------" << std::endl;
             std::cout << "Displacement about Body X+: " << NextState[0] << std::endl;
             std::cout << "Displacement about Body Y+: " << NextState[1] << std::endl;
             std::cout << "Displacement about Body Z+: " << NextState[2] << std::endl;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Rotation Rate about Body X+: " << NextState[9] << std::endl;
             std::cout << "Rotation Rate about Body Y+: " << NextState[10] << std::endl;
             std::cout << "Rotation Rate about Body Z+: " << NextState[11] << std::endl;
-            std::cout <<"Time Elapsed in Simulation: " << t;
+            std::cout <<"Time Elapsed in Simulation: " << t << std::endl;
             StateVector.push_back(NextState);
 
         }
